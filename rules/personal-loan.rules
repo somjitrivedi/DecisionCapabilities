@@ -1,0 +1,220 @@
+ruleset PersonalLoanUnderwriting
+default approve
+
+const MIN_AGE = 18
+const MAX_AGE_AT_MATURITY = 75
+const MIN_ANNUAL_INCOME = 30_000
+const MIN_AMOUNT = 250
+const MAX_AMOUNT = 20_000
+const MAX_TERM = 60
+const MIN_SCORE = 600
+const LARGE_LOAN = 10_000
+
+rule Underage priority 100:
+  if applicant.age < MIN_AGE
+  then decline reason "UNDERAGE"
+
+rule AgeAtMaturity priority 100:
+  if applicant.age + loan.termMonths / 12 > MAX_AGE_AT_MATURITY
+  then decline reason "AGE_AT_MATURITY"
+
+rule TermTooLong priority 100:
+  if loan.termMonths > MAX_TERM
+  then decline reason "TERM_TOO_LONG"
+
+rule AmountTooHigh priority 100:
+  if loan.amount > MAX_AMOUNT
+  then decline reason "AMOUNT_TOO_HIGH"
+
+rule AmountTooLow priority 100:
+  if loan.amount < MIN_AMOUNT
+  then decline reason "AMOUNT_TOO_LOW"
+
+rule UnemployedNoGuarantor priority 100:
+  if employment.tenure = "unemployed" and loan.guarantor = "none"
+  then decline reason "UNEMPLOYED"
+
+rule LowIncome priority 100:
+  if applicant.income is not null and applicant.income < MIN_ANNUAL_INCOME
+  then decline reason "LOW_INCOME"
+
+rule LowBureauScore priority 100:
+  if bureau.score is not null and bureau.score < MIN_SCORE
+  then decline reason "LOW_BUREAU_SCORE"
+
+rule RecentDelinquencies priority 100:
+  if (bureau.delinquencies ?? 0) >= 3
+  then decline reason "DELINQUENCIES"
+
+rule CriticalHistoryOverdrawn priority 100:
+  if bureau.history = "critical" and accounts.checking = "overdrawn"
+  then decline reason "CRITICAL_HISTORY"
+
+rule PastDelaysLargeLoan priority 100:
+  if bureau.history = "past_delays" and loan.amount > 5_000
+  then decline reason "PAST_DELAYS"
+
+rule HighDebtBurden priority 100:
+  if loan.installmentBurden = 4
+     and accounts.savings in ["very_low", "none"]
+     and accounts.checking in ["overdrawn", "low"]
+  then decline reason "HIGH_DEBT_BURDEN"
+
+rule OverdrawnLongTerm priority 100:
+  if accounts.checking = "overdrawn" and loan.termMonths >= 36
+  then decline reason "OVERDRAWN_LONG_TERM"
+
+rule TooManyCredits priority 100:
+  if bureau.existingCredits >= 4
+  then decline reason "TOO_MANY_CREDITS"
+
+rule OtherBankPlansOverdrawn priority 100:
+  if bureau.otherPlans = "bank" and accounts.checking = "overdrawn"
+  then decline reason "OTHER_BANK_PLANS"
+
+rule PurposeNotFinanced priority 100:
+  if loan.purpose = "vacation"
+  then decline reason "PURPOSE_NOT_FINANCED"
+
+rule IncomeNotVerified priority 90:
+  if applicant.income is null and loan.amount > LARGE_LOAN
+  then refer reason "INCOME_NOT_VERIFIED"
+
+rule YoungLargeLoan priority 90:
+  if applicant.age < 25 and loan.amount > 5_000
+  then refer reason "YOUNG_LARGE_LOAN"
+
+rule ShortTenure priority 90:
+  if employment.tenure = "under_1y" and loan.amount > 4_000
+  then refer reason "SHORT_TENURE"
+
+rule BusinessPurpose priority 90:
+  if loan.purpose = "business"
+  then refer reason "BUSINESS_PURPOSE"
+
+rule UnsecuredLargeLoan priority 90:
+  if loan.collateral = "none" and loan.amount > 8_000
+  then refer reason "UNSECURED_LARGE"
+
+rule RentingLongTerm priority 90:
+  if applicant.housing = "rent" and loan.termMonths > 48
+  then refer reason "RENTING_LONG_TERM"
+
+rule NonResidentWorker priority 90:
+  if employment.jobType = "unskilled_nonresident"
+  then refer reason "NON_RESIDENT"
+
+rule NoContactNumber priority 90:
+  if not applicant.hasTelephone and loan.amount > 7_500
+  then refer reason "NO_CONTACT_NUMBER"
+
+rule MissingIncomeProof priority 90:
+  if loan.amount > LARGE_LOAN and not contains(applicant.documents, "income_proof")
+  then refer reason "MISSING_INCOME_PROOF"
+
+rule AgeMismatch priority 90:
+  if applicant.dateOfBirth is not null and age(applicant.dateOfBirth) != applicant.age
+  then refer reason "AGE_MISMATCH"
+
+rule StaleApplication priority 90:
+  if loan.applicationDate is not null and daysBetween(loan.applicationDate, today()) > 90
+  then refer reason "STALE_APPLICATION"
+
+rule DependentsOnLowIncome priority 90:
+  if applicant.dependents >= 2 and applicant.income is not null and applicant.income < 45_000
+  then refer reason "DEPENDENTS_LOW_INCOME"
+
+rule EducationLongTerm priority 90:
+  if loan.purpose in ["education", "retraining"] and loan.termMonths > 36
+  then refer reason "EDUCATION_LONG_TERM"
+
+rule GuarantorReview priority 90:
+  if loan.guarantor = "guarantor" and loan.amount > LARGE_LOAN
+  then refer reason "GUARANTOR_REVIEW"
+
+rule GradeA priority 50:
+  if accounts.checking in ["healthy", "none"]
+     and bureau.history in ["existing_paid", "all_paid_this_bank", "critical"]
+     and accounts.savings in ["medium", "high"]
+  then set decision.riskGrade = "A"
+
+rule GradeB priority 50:
+  if decision.riskGrade is null and accounts.checking in ["healthy", "none"]
+  then set decision.riskGrade = "B"
+
+rule GradeC priority 50:
+  if decision.riskGrade is null and accounts.savings in ["medium", "high"]
+  then set decision.riskGrade = "C"
+
+rule GradeD priority 50:
+  if decision.riskGrade is null and accounts.checking = "low"
+  then set decision.riskGrade = "D"
+
+rule GradeE priority 50:
+  if decision.riskGrade is null
+  then set decision.riskGrade = "E"
+
+rule HighRiskLargeLoan priority 40:
+  if decision.riskGrade = "E" and loan.amount > 6_000
+  then refer reason "HIGH_RISK_LARGE_LOAN"
+
+rule StrongProfile priority 40:
+  if decision.riskGrade = "A" and loan.amount <= LARGE_LOAN
+  then approve reason "STRONG_PROFILE"
+
+rule AprGradeA priority 30:
+  if decision.riskGrade = "A"
+  then set decision.apr = 8.5
+
+rule AprGradeB priority 30:
+  if decision.riskGrade = "B"
+  then set decision.apr = 10.5
+
+rule AprGradeC priority 30:
+  if decision.riskGrade = "C"
+  then set decision.apr = 13.0
+
+rule AprGradeD priority 30:
+  if decision.riskGrade = "D"
+  then set decision.apr = 16.5
+
+rule AprGradeE priority 30:
+  if decision.riskGrade = "E"
+  then set decision.apr = 21.0
+
+rule BaseMaxAmount priority 25:
+  if true
+  then set decision.maxAmount = loan.amount
+
+rule SecuredDiscount priority 20:
+  if loan.collateral = "real_estate" and decision.apr is not null
+  then set decision.apr = decision.apr - 1.0
+
+rule LongTermLoading priority 20:
+  if loan.termMonths > 36 and decision.apr is not null
+  then set decision.apr = decision.apr + 0.75
+
+rule GuarantorDiscount priority 20:
+  if loan.guarantor in ["co_applicant", "guarantor"] and decision.apr is not null
+  then set decision.apr = decision.apr - 0.5
+
+rule CapGradeD priority 20:
+  if decision.riskGrade = "D"
+  then set decision.maxAmount = min(loan.amount, 8_000)
+
+rule CapGradeE priority 20:
+  if decision.riskGrade = "E"
+  then set decision.maxAmount = min(loan.amount, 4_000)
+
+rule CapByIncome priority 15:
+  if applicant.income is not null
+  then set decision.maxAmount = min(decision.maxAmount ?? loan.amount, applicant.income * 0.5)
+
+rule TermCap priority 15:
+  if decision.riskGrade in ["D", "E"]
+  then set decision.maxTermMonths = 36
+  else set decision.maxTermMonths = MAX_TERM
+
+rule SecondLineReview priority 10:
+  if loan.amount between 15_000 and MAX_AMOUNT
+  then set decision.manualReview = true

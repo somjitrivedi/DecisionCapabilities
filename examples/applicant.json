@@ -1,0 +1,41 @@
+{
+  "applicant": {
+    "id": "A-1001",
+    "age": 34,
+    "dateOfBirth": "1992-03-14",
+    "income": 52000,
+    "dependents": 1,
+    "residenceYears": 3,
+    "housing": "rent",
+    "hasTelephone": true,
+    "documents": [
+      "id_proof",
+      "income_proof",
+      "address_proof"
+    ]
+  },
+  "employment": {
+    "tenure": "4_to_7y",
+    "jobType": "skilled"
+  },
+  "accounts": {
+    "checking": "healthy",
+    "savings": "medium"
+  },
+  "bureau": {
+    "score": 705,
+    "history": "existing_paid",
+    "existingCredits": 1,
+    "otherPlans": "none",
+    "delinquencies": 0
+  },
+  "loan": {
+    "amount": 12500,
+    "termMonths": 48,
+    "purpose": "car_new",
+    "installmentBurden": 2,
+    "collateral": "car_or_other",
+    "guarantor": "none",
+    "applicationDate": "2026-11-18"
+  }
+}

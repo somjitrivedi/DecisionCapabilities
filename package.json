@@ -1,0 +1,22 @@
+{
+  "name": "decisioncapabilties",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Decision rules engine for personal-loan underwriting: rule language, decision tables, Rete inference, scorecards, compiler, verification.",
+  "type": "module",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "dc": "node src/cli.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "node --test \"test/**/*.test.ts\"",
+    "load:german": "node src/cli.ts load german",
+    "check:rules": "node src/cli.ts check rules/personal-loan.rules",
+    "run:german": "node src/cli.ts run rules/personal-loan.rules --dataset german"
+  },
+  "devDependencies": {
+    "@types/node": "24.19.2",
+    "typescript": "5.9.3"
+  }
+}
