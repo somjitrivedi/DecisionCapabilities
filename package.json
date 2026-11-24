@@ -1,5 +1,5 @@
 {
-  "name": "decisioncapabilties",
+  "name": "decisioncapabilities",
   "version": "0.1.0",
   "private": true,
   "description": "Decision rules engine for personal-loan underwriting: rule language, decision tables, Rete inference, scorecards, compiler, verification.",

@@ -1,4 +1,4 @@
-# DecisionCapabilties
+# DecisionCapabilities
 
 A decision rules engine for personal-loan underwriting. Business users write readable rules and the engine type-checks them against a typed object model, compiles them to an intermediate representation (IR) and evaluates loan applications. Each decision comes back with an outcome, reason codes, computed outputs and a per-rule trace.
 
@@ -18,7 +18,7 @@ node src/cli.ts eval rules/personal-loan.rules examples/applicant.json --trace
 
 | Command | What it does |
 |---|---|
-| `dc load german [--file]` | Loads German Credit into the SQLite store (`decisioncapabilties.db`) |
+| `dc load german [--file]` | Loads German Credit into the SQLite store (`decisioncapabilities.db`) |
 | `dc check <file.rules>` | Parses and type-checks a ruleset; exits 1 on errors |
 | `dc ir <file.rules>` | Prints the compiled IR as JSON |
 | `dc eval <file.rules> <case.json>` | Decides one application |

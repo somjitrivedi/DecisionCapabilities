@@ -20,7 +20,7 @@ commands:
   run <file.rules> --dataset <name>     decide every application in a dataset and summarise
 
 options:
-  --db <path>       SQLite store (default decisioncapabilties.db)
+  --db <path>       SQLite store (default decisioncapabilities.db)
   --today <date>    evaluation date as YYYY-MM-DD (default today)
   --trace           include the per-rule trace in eval output`;
 
@@ -51,7 +51,7 @@ function main(argv: string[]): void {
     args: argv,
     allowPositionals: true,
     options: {
-      db: { type: "string", default: "decisioncapabilties.db" },
+      db: { type: "string", default: "decisioncapabilities.db" },
       today: { type: "string" },
       dataset: { type: "string" },
       file: { type: "string" },
