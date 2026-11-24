@@ -4,22 +4,6 @@ A decision rules engine for personal-loan underwriting. Business users write rea
 
 TypeScript run directly by Node 24 (type stripping), with storage in the built-in `node:sqlite`. There are no native dependencies.
 
-## Status
-
-| # | Phase | State |
-|---|---|---|
-| 0 | Foundation, domain model, IR, dataset | done |
-| 1 | Rule language: lexer, parser, type checker | done |
-| 2 | Decision tables and trees | next |
-| 3 | Rete inference engine | planned |
-| 4 | Scorecards and decision flows | planned |
-| 5 | Rule compiler | planned |
-| 6 | Rule verification | planned |
-| 7 | Versioning and lifecycle | planned |
-| 8 | Decision service runtime | planned |
-| 9 | Simulation | planned |
-| 10 | No-code authoring interface | planned |
-
 ## Quick start
 
 ```sh
@@ -164,7 +148,7 @@ rules.rules:4:6: error E201: applicant.income is money, not string
 
 ## IR (version 1)
 
-The checker lowers the source to a JSON-serialisable `RuleSet`. Later phases build on this one form: decision tables, trees, scorecards and flows will lower into it, and the compiler, verifier and simulator will consume it.
+The checker lowers the source to a JSON-serialisable `RuleSet`.
 
 ```
 RuleSet  { irVersion, name, schema, defaultOutcome, rules: Rule[] }
@@ -197,7 +181,7 @@ With `--today 2026-11-24`, all 1,000 applications:
 | refer | 120 | 37.5% |
 | decline | 354 | 43.8% |
 
-The dataset's base bad rate is 30%. The reference interpreter decides about 58,000 applications per second on one core. This is the baseline Phase 5 must beat (target over 100,000).
+The dataset's base bad rate is 30%. The reference interpreter decides about 58,000 applications per second on one core.
 
 ## Data
 
